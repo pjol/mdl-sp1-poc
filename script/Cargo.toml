@@ -1,0 +1,8 @@
+[workspace]
+[package]
+version = "0.1.0"
+name = "mdl-sp1-poc-script"
+edition = "2021"
+
+[dependencies]
+sp1-sdk = "2.0.0"

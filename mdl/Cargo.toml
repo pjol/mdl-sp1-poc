@@ -1,0 +1,12 @@
+[package]
+name = "mdl"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+jwt-compact = { git = "https://github.com/slowli/jwt-compact.git", rev = "84eb1025a2a1382c69e0cd866dcfc067097b3a18", features = ["p256"] }
+# jwt-compact = { version = "0.8.0", features = ["p256"] }
+chrono = "0.4.38"
+serde = { version = "1.0.210", features = ["derive"] }
+p256 = "0.13.2"
+hex = "0.4.3"
