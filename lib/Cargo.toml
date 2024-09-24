@@ -1,0 +1,12 @@
+[package]
+name = "mdl_verification_lib"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+alloy-sol-types = { workspace = true }
+hex = "0.4.3"
+jwt-compact = { version = "0.8.0", features = ["p256"] }
+# jwt-compact = { version = "0.8.0", features = ["p256"] }
+p256 = "0.13.2"
+serde = "1.0.210"

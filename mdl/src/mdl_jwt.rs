@@ -52,7 +52,7 @@ mod tests {
     type PublicKey = <Es256 as Algorithm>::VerifyingKey;
 
     #[test]
-    fn test_mdl_jwt() {
+    fn test_mdl_jwt_sig_match() {
         let enc_vp_token = env::var("ENC_VP_TOKEN").unwrap();
         // println!("{}", enc_vp_token);
 
@@ -73,7 +73,7 @@ mod tests {
 
     #[test]
 
-    fn test_cred_jwt() {
+    fn test_cred_jwt_sig_match() {
         let enc_vp_token = env::var("ENC_VP_TOKEN").unwrap();
         let token = UntrustedToken::new(&enc_vp_token).unwrap();
 

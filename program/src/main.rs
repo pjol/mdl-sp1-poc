@@ -1,19 +1,35 @@
-//! A simple program to be proven inside the zkVM.
+//! A simple program that takes a number `n` as input, and writes the `n-1`th and `n`th fibonacci
+//! number as an output.
 
+// These two lines are necessary for the program to properly compile.
+//
+// Under the hood, we wrap your main function with some extra code so that it behaves properly
+// inside the zkVM.
 #![no_main]
 sp1_zkvm::entrypoint!(main);
 
+use alloy_sol_types::SolType;
+use mdl_verification_lib::{verify_credential, PublicValuesStruct};
+
+
 pub fn main() {
-    let n = sp1_zkvm::io::read::<u32>();
-    let mut a: u32 = 0;
-    let mut b: u32 = 1;
-    let mut sum;
-    for _ in 1..n {
-        sum = a + b;
-        a = b;
-        b = sum;
+
+    // Read input.
+    let credential = sp1_zkvm::io::read::<String>();
+
+    // Verify the credential signature & get the expiration, unique ID, and zip code.
+    let (mut ok, expiration, city, id) = verify_credential(&credential);
+
+
+    // Confirm that the credential's zip code is a valid San Francisco zip.
+    if !(city.as_str() == "SAN FRANCISCO") || id == "" || expiration == 0 {
+        ok = false;
     }
 
-    sp1_zkvm::io::write(0, a.to_be_bytes().as_slice());
-    sp1_zkvm::io::write(0, b.to_be_bytes().as_slice());
+    // Encode the public values of the program.
+    let bytes = PublicValuesStruct::abi_encode(&PublicValuesStruct { expiration, id, ok });
+
+    // Commit to the public values of the program. The final proof will have a commitment to all the
+    // bytes that were committed to.
+    sp1_zkvm::io::commit_slice(&bytes);
 }
