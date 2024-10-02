@@ -8,5 +8,7 @@ jwt-compact = { git = "https://github.com/slowli/jwt-compact.git", rev = "84eb10
 # jwt-compact = { version = "0.8.0", features = ["p256"] }
 chrono = "0.4.38"
 serde = { version = "1.0.210", features = ["derive"] }
-p256 = "0.13.2"
+p256 = { version = "0.13.2", features = ["jwk"] }
 hex = "0.4.3"
+elliptic-curve = { version = "0.13.8", features = ["jwk", "arithmetic"] }
+base64 = "0.22.1"

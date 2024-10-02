@@ -60,10 +60,10 @@ fn main() {
 
         // Read the output.
         let decoded = PublicValuesStruct::abi_decode(output.as_slice(), true).unwrap();
-        let PublicValuesStruct { id, ok, expiration } = decoded;
+        let PublicValuesStruct { id, ok, issued_at } = decoded;
         println!("id: {}", id);
         println!("ok: {}", ok);
-        println!("expiration: {}", expiration);
+        println!("issued at: {}", issued_at);
 
         let (verified, _, _, _) = mdl_verification_lib::verify_credential(&args.cred);
         assert_eq!(verified, ok);
@@ -78,6 +78,7 @@ fn main() {
         // Generate the proof
         let proof = client
             .prove(&pk, stdin)
+            .compressed()
             .run()
             .expect("failed to generate proof");
 

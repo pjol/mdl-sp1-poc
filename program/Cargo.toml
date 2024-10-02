@@ -7,3 +7,7 @@ edition = "2021"
 alloy-sol-types = { workspace = true }
 sp1-zkvm = "2.0.0"
 mdl_verification_lib = { path = "../lib" }
+jwt-compact = { git = "https://github.com/pjol/jwt-compact-patch.git", features = ["p256"], branch = "master"}
+
+
+

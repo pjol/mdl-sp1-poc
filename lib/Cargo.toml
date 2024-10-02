@@ -5,8 +5,10 @@ edition = "2021"
 
 [dependencies]
 alloy-sol-types = { workspace = true }
+jwt-compact = { git = "https://github.com/slowli/jwt-compact.git", rev = "84eb1025a2a1382c69e0cd866dcfc067097b3a18", features = ["p256"] }
+chrono = "0.4.38"
+serde = { version = "1.0.210", features = ["derive"] }
+p256 = { version = "0.13.2", features = ["jwk"] }
 hex = "0.4.3"
-jwt-compact = { version = "0.8.0", features = ["p256"] }
-# jwt-compact = { version = "0.8.0", features = ["p256"] }
-p256 = "0.13.2"
-serde = "1.0.210"
+elliptic-curve = { version = "0.13.8", features = ["jwk", "arithmetic"] }
+base64 = "0.22.1"

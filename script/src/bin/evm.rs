@@ -42,7 +42,7 @@ enum ProofSystem {
 #[serde(rename_all = "camelCase")]
 struct SP1FibonacciProofFixture {
     ok: bool,
-    expiration: i64,
+    issued_at: i64,
     id: String,
     vkey: String,
     public_values: String,
@@ -87,13 +87,13 @@ fn create_proof_fixture(
 ) {
     // Deserialize the public values.
     let bytes = proof.public_values.as_slice();
-    let PublicValuesStruct { id, ok, expiration } = PublicValuesStruct::abi_decode(bytes, false).unwrap();
+    let PublicValuesStruct { id, ok, issued_at } = PublicValuesStruct::abi_decode(bytes, false).unwrap();
 
     // Create the testing fixture so we can test things end-to-end.
     let fixture = SP1FibonacciProofFixture {
         id,
         ok,
-        expiration,
+        issued_at,
         vkey: vk.bytes32().to_string(),
         public_values: format!("0x{}", hex::encode(bytes)),
         proof: format!("0x{}", hex::encode(proof.bytes())),

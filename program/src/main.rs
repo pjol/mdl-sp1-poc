@@ -18,16 +18,16 @@ pub fn main() {
     let credential = sp1_zkvm::io::read::<String>();
 
     // Verify the credential signature & get the expiration, unique ID, and zip code.
-    let (mut ok, expiration, city, id) = verify_credential(&credential);
+    let (mut ok, issued_at, city, id) = verify_credential(&credential);
 
 
     // Confirm that the credential's zip code is a valid San Francisco zip.
-    if !(city.as_str() == "SAN FRANCISCO") || id == "" || expiration == 0 {
+    if !(city.as_str() == "SAN FRANCISCO") || id == "" || issued_at == 0 {
         ok = false;
     }
 
     // Encode the public values of the program.
-    let bytes = PublicValuesStruct::abi_encode(&PublicValuesStruct { expiration, id, ok });
+    let bytes = PublicValuesStruct::abi_encode(&PublicValuesStruct { issued_at, id, ok });
 
     // Commit to the public values of the program. The final proof will have a commitment to all the
     // bytes that were committed to.
