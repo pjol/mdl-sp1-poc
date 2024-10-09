@@ -12,3 +12,4 @@ p256 = { version = "0.13.2", features = ["jwk"] }
 hex = "0.4.3"
 elliptic-curve = { version = "0.13.8", features = ["jwk", "arithmetic"] }
 base64 = "0.22.1"
+alloy-primitives = { version = "0.8.5", features = ["serde"]}

@@ -5,9 +5,10 @@ edition = "2021"
 
 [dependencies]
 alloy-sol-types = { workspace = true }
+alloy-core = { workspace = true }
 sp1-zkvm = "2.0.0"
 mdl_verification_lib = { path = "../lib" }
 jwt-compact = { git = "https://github.com/pjol/jwt-compact-patch.git", features = ["p256"], branch = "master"}
-
+alloy-primitives = { version = "0.8.7", features = ["serde"]}
 
 

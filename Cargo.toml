@@ -9,7 +9,8 @@ exclude = ["mdl"]
 
 
 [workspace.dependencies]
-alloy-sol-types = "0.7.7"
+alloy-sol-types = "0.8.7"
+alloy-core = "0.8.7"
 
 
 [patch.crates-io]

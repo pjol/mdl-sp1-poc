@@ -8,26 +8,31 @@
 #![no_main]
 sp1_zkvm::entrypoint!(main);
 
-use alloy_sol_types::SolType;
-use mdl_verification_lib::{verify_credential, PublicValuesStruct};
+use alloy_sol_types::{sol_data, SolType, SolValue};
+use mdl_verification_lib::{verify_credential, PublicValues};
+use alloy_primitives::{U256, Address};
 
 
 pub fn main() {
 
     // Read input.
     let credential = sp1_zkvm::io::read::<String>();
+    let address = sp1_zkvm::io::read::<String>();
 
-    // Verify the credential signature & get the expiration, unique ID, and zip code.
-    let (mut ok, issued_at, city, id) = verify_credential(&credential);
+    // Verify the credential signatures & get the expiration, unique ID, and city attestation.
+    let (id, issued_at, city) = verify_credential(&credential);
 
+    let a = Address::parse_checksummed(address, None).unwrap();
 
-    // Confirm that the credential's zip code is a valid San Francisco zip.
-    if !(city.as_str() == "SAN FRANCISCO") || id == "" || issued_at == 0 {
-        ok = false;
-    }
+    let vals = PublicValues {
+        owner: a,
+        id,
+        issuedAt: U256::from(issued_at),
+        city
+    };
 
     // Encode the public values of the program.
-    let bytes = PublicValuesStruct::abi_encode(&PublicValuesStruct { issued_at, id, ok });
+    let bytes = vals.abi_encode();
 
     // Commit to the public values of the program. The final proof will have a commitment to all the
     // bytes that were committed to.

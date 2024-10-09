@@ -1,4 +1,4 @@
-use alloy_sol_types::sol;
+use alloy_primitives::{U256, Address};
 use serde::{Serialize, Deserialize};
 use jwt_compact::{alg::{Es256, VerifyingKey}, prelude::*};
 use elliptic_curve::JwkEcKey;
@@ -6,13 +6,16 @@ use elliptic_curve;
 use base64::{engine::general_purpose::STANDARD, Engine as _};
 use p256::NistP256;
 use std::str::FromStr;
+use std::boxed::Box;
+use alloy_sol_types::sol;
+
 
 sol! {
-    /// The public values encoded as a struct that can be easily deserialized inside Solidity.
-    struct PublicValuesStruct {
-        int64 issued_at;
-        string id;
-        bool ok;
+    struct PublicValues {
+        address owner;
+        uint256 id;
+        uint256 issuedAt;
+        string city;
     }
 }
 
@@ -75,7 +78,7 @@ pub const DMV_KEY: &[u8] = &[4, 222, 219, 144, 201, 169, 53, 107, 20, 75, 115, 0
 
 /// Custom claims encoded in the token.
 
-pub fn verify_credential(vp: &String) -> (bool, i64, String, String) {
+pub fn verify_credential(vp: &String) -> (U256, U256, String) {
 
     // Parse the VerifiablePresentation token from the vp string.
     let vp_token = UntrustedToken::new(vp).unwrap();
@@ -107,14 +110,18 @@ pub fn verify_credential(vp: &String) -> (bool, i64, String, String) {
     let formatted_key_id = key_id.split("#").next().unwrap();
     let matching = attested_id.as_str() == formatted_key_id;
     if !matching {
-        panic!();
+        panic!("id: {} does not match id: {}", formatted_key_id, attested_id);
     }
 
     // All validation checks passed!
-    let issued_at: i64 = vp_claims.issued_at.unwrap().timestamp();
-    let city: String = vc_claims.custom.verifiable_credential.credential_subject.drivers_license.resident_city.clone();
 
-    return (true, issued_at, city, attested_id);
+    let id_bytes = wallet_key.as_bytes();
+    // let id_bytes = wallet_key_bytes.into_vec().split_off(1);
+    // eprintln!("{:?}", id_bytes);
+    let id: alloy_primitives::Uint<256, 4> = U256::from_be_slice(id_bytes.split_at(1).1);
+    let issued_at = U256::from(vp_claims.issued_at.unwrap().timestamp());
+    let city: String = vc_claims.custom.verifiable_credential.credential_subject.drivers_license.resident_city.clone();
+    return (id, issued_at, city);
 }
 
 
