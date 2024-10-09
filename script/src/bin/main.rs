@@ -12,7 +12,7 @@
 
 use alloy_sol_types::SolType;
 use clap::Parser;
-use mdl_verification_lib::PublicValuesStruct;
+use mdl_verification_lib::PublicValues;
 use sp1_sdk::{ProverClient, SP1Stdin};
 
 /// The ELF (executable and linkable format) file for the Succinct RISC-V zkVM.
@@ -30,6 +30,9 @@ struct Args {
 
     #[clap(long, default_value = "test")]
     cred: String,
+
+    #[clap(long, default_value = "0x0000000000000000000000000000000000000000")]
+    address: String,
 }
 
 fn main() {
@@ -50,6 +53,7 @@ fn main() {
     // Setup the inputs.
     let mut stdin = SP1Stdin::new();
     stdin.write(&args.cred);
+    stdin.write(&args.address);
 
     println!("jwk: {}", args.cred);
 
@@ -58,15 +62,24 @@ fn main() {
         let (output, report) = client.execute(MDL_ELF, stdin).run().unwrap();
         println!("Program executed successfully.");
 
-        // Read the output.
-        let decoded = PublicValuesStruct::abi_decode(output.as_slice(), true).unwrap();
-        let PublicValuesStruct { id, ok, issued_at } = decoded;
-        println!("id: {}", id);
-        println!("ok: {}", ok);
-        println!("issued at: {}", issued_at);
+        let bytes = output.as_slice();
+        println!("{}", format!("0x{}", hex::encode(bytes)));
 
-        let (verified, _, _, _) = mdl_verification_lib::verify_credential(&args.cred);
-        assert_eq!(verified, ok);
+        // Read the output.
+        let vals = PublicValues::abi_decode(bytes, true).unwrap();
+        let id = vals.id;
+        let city = vals.city;
+        let issued_at = vals.issuedAt;
+        let owner = vals.owner;
+        println!("id: {}", id);
+        println!("city: {}", city);
+        println!("issued at: {}", issued_at);
+        println!("new owner: {}", owner);
+
+        let (verified_id, verified_issued_at, verified_city) = mdl_verification_lib::verify_credential(&args.cred);
+        assert_eq!(verified_id, id);
+        assert_eq!(verified_city, city);
+        assert_eq!(verified_issued_at, issued_at);
         println!("Values are correct!");
 
         // Record the number of cycles executed.

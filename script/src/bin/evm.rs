@@ -10,9 +10,8 @@
 //! RUST_LOG=info cargo run --release --bin evm -- --system plonk
 //! ```
 
-use alloy_sol_types::SolType;
+use alloy_sol_types::sol;
 use clap::{Parser, ValueEnum};
-use mdl_verification_lib::PublicValuesStruct;
 use serde::{Deserialize, Serialize};
 use sp1_sdk::{HashableKey, ProverClient, SP1ProofWithPublicValues, SP1Stdin, SP1VerifyingKey};
 use std::path::PathBuf;
@@ -26,7 +25,9 @@ pub const FIBONACCI_ELF: &[u8] = include_bytes!("../../../elf/riscv32im-succinct
 struct EVMArgs {
     #[clap(long, default_value = "test")]
     cred: String,
-    #[clap(long, value_enum, default_value = "groth16")]
+    #[clap(long, default_value = "0x0000000000000000000000000000000000000000")]
+    address: String,
+    #[clap(long, value_enum, default_value = "plonk")]
     system: ProofSystem,
 }
 
@@ -37,16 +38,14 @@ enum ProofSystem {
     Groth16,
 }
 
-/// A fixture that can be used to test the verification of SP1 zkVM proofs inside Solidity.
-#[derive(Debug, Clone, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-struct SP1FibonacciProofFixture {
-    ok: bool,
-    issued_at: i64,
-    id: String,
-    vkey: String,
-    public_values: String,
-    proof: String,
+sol! {
+    /// A fixture that can be used to test the verification of SP1 zkVM proofs inside Solidity.
+    #[derive(Serialize, Deserialize)]
+    struct SP1mDLProofFixture {
+        string proof;
+        string values;
+        string vkey;
+    }
 }
 
 fn main() {
@@ -65,6 +64,7 @@ fn main() {
     // Setup the inputs.
     let mut stdin = SP1Stdin::new();
     stdin.write(&args.cred);
+    stdin.write(&args.address);
 
     println!("n: {}", args.cred);
     println!("Proof System: {:?}", args.system);
@@ -87,15 +87,11 @@ fn create_proof_fixture(
 ) {
     // Deserialize the public values.
     let bytes = proof.public_values.as_slice();
-    let PublicValuesStruct { id, ok, issued_at } = PublicValuesStruct::abi_decode(bytes, false).unwrap();
 
     // Create the testing fixture so we can test things end-to-end.
-    let fixture = SP1FibonacciProofFixture {
-        id,
-        ok,
-        issued_at,
+    let fixture = SP1mDLProofFixture {
         vkey: vk.bytes32().to_string(),
-        public_values: format!("0x{}", hex::encode(bytes)),
+        values: format!("0x{}", hex::encode(bytes)),
         proof: format!("0x{}", hex::encode(proof.bytes())),
     };
 
@@ -109,14 +105,14 @@ fn create_proof_fixture(
     //
     // If you need to expose the inputs or outputs of your program, you should commit them in
     // the public values.
-    println!("Public Values: {}", fixture.public_values);
+    println!("Public Values: {}", fixture.values);
 
     // The proof proves to the verifier that the program was executed with some inputs that led to
     // the give public values.
     println!("Proof Bytes: {}", fixture.proof);
 
     // Save the fixture to a file.
-    let fixture_path = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../contracts/src/fixtures");
+    let fixture_path = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../fixtures");
     std::fs::create_dir_all(&fixture_path).expect("failed to create fixture path");
     std::fs::write(
         fixture_path.join(format!("{:?}-fixture.json", system).to_lowercase()),

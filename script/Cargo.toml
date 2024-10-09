@@ -1,11 +1,11 @@
 [package]
 version = "0.1.0"
-name = "fibonacci-script"
+name = "mdl_verification_script"
 edition = "2021"
-default-run = "fibonacci"
+default-run = "evm"
 
 [[bin]]
-name = "fibonacci"
+name = "mdl_verification"
 path = "src/bin/main.rs"
 
 [[bin]]
@@ -21,6 +21,8 @@ tracing = "0.1.40"
 hex = "0.4.3"
 alloy-sol-types = { workspace = true }
 mdl_verification_lib = { path = "../lib" }
+alloy-primitives = { version = "0.8.7", features = ["serde"]}
+alloy-core = "0.8.7"
 
 [build-dependencies]
 sp1-helper = "2.0.0"
